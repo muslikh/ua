@@ -326,6 +326,150 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
+                <!-- Menu Unit Converter -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/menuUnitConverter"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardElevation="2dp"
+                    app:cardCornerRadius="16dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="24dp">
+                        <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_rotate" app:tint="?attr/colorPrimary"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Konversi Satuan" android:layout_marginTop="12dp" android:textStyle="bold" android:textAlignment="center"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Menu Compass -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/menuCompass"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardElevation="2dp"
+                    app:cardCornerRadius="16dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="24dp">
+                        <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_compass" app:tint="?attr/colorPrimary"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kompas" android:layout_marginTop="12dp" android:textStyle="bold" android:textAlignment="center"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Menu Age Calculator -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/menuAgeCalc"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardElevation="2dp"
+                    app:cardCornerRadius="16dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="24dp">
+                        <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_today" app:tint="?attr/colorPrimary"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Hitung Umur" android:layout_marginTop="12dp" android:textStyle="bold" android:textAlignment="center"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Menu Stopwatch -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/menuStopwatch"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardElevation="2dp"
+                    app:cardCornerRadius="16dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="24dp">
+                        <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_recent_history" app:tint="?attr/colorPrimary"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Stopwatch" android:layout_marginTop="12dp" android:textStyle="bold" android:textAlignment="center"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Menu Flashlight -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/menuFlashlight"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardElevation="2dp"
+                    app:cardCornerRadius="16dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="24dp">
+                        <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/btn_star_big_on" app:tint="?attr/colorPrimary"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Senter" android:layout_marginTop="12dp" android:textStyle="bold" android:textAlignment="center"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Menu Notes -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/menuNotes"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardElevation="2dp"
+                    app:cardCornerRadius="16dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="24dp">
+                        <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_edit" app:tint="?attr/colorPrimary"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Catatan" android:layout_marginTop="12dp" android:textStyle="bold" android:textAlignment="center"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Menu Currency Converter -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/menuCurrency"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardElevation="2dp"
+                    app:cardCornerRadius="16dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="24dp">
+                        <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_manage" app:tint="?attr/colorPrimary"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Mata Uang" android:layout_marginTop="12dp" android:textStyle="bold" android:textAlignment="center"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Menu Loan Calculator -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/menuLoanCalc"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardElevation="2dp"
+                    app:cardCornerRadius="16dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="24dp">
+                        <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_add" app:tint="?attr/colorPrimary"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Cicilan" android:layout_marginTop="12dp" android:textStyle="bold" android:textAlignment="center"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
             </GridLayout>
 
             <View

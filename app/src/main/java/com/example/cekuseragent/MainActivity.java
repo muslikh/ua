@@ -27,6 +27,14 @@ public class MainActivity extends AppCompatActivity {
         MaterialCardView menuIpInfo = findViewById(R.id.menuIpInfo);
         MaterialCardView menuBmi = findViewById(R.id.menuBmi);
         MaterialCardView menuDiscount = findViewById(R.id.menuDiscount);
+        MaterialCardView menuUnitConverter = findViewById(R.id.menuUnitConverter);
+        MaterialCardView menuCompass = findViewById(R.id.menuCompass);
+        MaterialCardView menuAgeCalc = findViewById(R.id.menuAgeCalc);
+        MaterialCardView menuStopwatch = findViewById(R.id.menuStopwatch);
+        MaterialCardView menuFlashlight = findViewById(R.id.menuFlashlight);
+        MaterialCardView menuNotes = findViewById(R.id.menuNotes);
+        MaterialCardView menuCurrency = findViewById(R.id.menuCurrency);
+        MaterialCardView menuLoanCalc = findViewById(R.id.menuLoanCalc);
 
         menuUserAgent.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, UserAgentActivity.class));
@@ -58,6 +66,38 @@ public class MainActivity extends AppCompatActivity {
 
         menuDiscount.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, DiscountCalculatorActivity.class));
+        });
+
+        menuUnitConverter.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, UnitConverterActivity.class));
+        });
+
+        menuCompass.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, CompassActivity.class));
+        });
+
+        menuAgeCalc.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, AgeCalculatorActivity.class));
+        });
+
+        menuStopwatch.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, StopwatchActivity.class));
+        });
+
+        menuFlashlight.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, FlashlightActivity.class));
+        });
+
+        menuNotes.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, NotesActivity.class));
+        });
+
+        menuCurrency.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, CurrencyActivity.class));
+        });
+
+        menuLoanCalc.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, LoanCalculatorActivity.class));
         });
 
         // Panggil auto-update saat aplikasi dibuka
