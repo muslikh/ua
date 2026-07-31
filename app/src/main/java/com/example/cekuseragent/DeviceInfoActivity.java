@@ -34,6 +34,10 @@ public class DeviceInfoActivity extends AppCompatActivity {
         info.append("Pabrikan      : ").append(Build.MANUFACTURER.toUpperCase()).append("\n");
         info.append("Model         : ").append(Build.MODEL).append("\n");
         info.append("Perangkat     : ").append(Build.DEVICE).append("\n");
+        
+        String deviceId = android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+        info.append("Device ID     : ").append(deviceId != null ? deviceId : "Tidak diketahui").append("\n");
+        
         info.append("Versi Android : ").append(Build.VERSION.RELEASE).append("\n");
         info.append("API Level     : ").append(Build.VERSION.SDK_INT).append("\n");
         info.append("Board         : ").append(Build.BOARD).append("\n");
