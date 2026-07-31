@@ -19,22 +19,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".UserAgentActivity" android:exported="false" />
         <activity android:name=".DeviceInfoActivity" android:exported="false" />
         <activity android:name=".TimestampActivity" android:exported="false" />
-        <activity android:name=".QrCodeActivity" android:exported="false" />
-        <activity android:name=".IpInfoActivity" android:exported="false" />
-        <activity android:name=".QrScannerActivity" android:exported="false" />
-        <activity android:name=".BmiCalculatorActivity" android:exported="false" />
-        <activity android:name=".DiscountCalculatorActivity" android:exported="false" />
-        <activity android:name=".UnitConverterActivity" android:exported="false" />
-        <activity android:name=".CompassActivity" android:exported="false" />
-        <activity android:name=".AgeCalculatorActivity" android:exported="false" />
-        <activity android:name=".StopwatchActivity" android:exported="false" />
-        <activity android:name=".FlashlightActivity" android:exported="false" />
-        <activity android:name=".NotesActivity" android:exported="false" />
-        <activity android:name=".CurrencyActivity" android:exported="false" />
-        <activity android:name=".LoanCalculatorActivity" android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
