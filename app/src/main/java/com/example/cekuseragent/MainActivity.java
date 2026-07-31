@@ -23,6 +23,10 @@ public class MainActivity extends AppCompatActivity {
         MaterialCardView menuDeviceInfo = findViewById(R.id.menuDeviceInfo);
         MaterialCardView menuTimestamp = findViewById(R.id.menuTimestamp);
         MaterialCardView menuQrCode = findViewById(R.id.menuQrCode);
+        MaterialCardView menuQrScanner = findViewById(R.id.menuQrScanner);
+        MaterialCardView menuIpInfo = findViewById(R.id.menuIpInfo);
+        MaterialCardView menuBmi = findViewById(R.id.menuBmi);
+        MaterialCardView menuDiscount = findViewById(R.id.menuDiscount);
 
         menuUserAgent.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, UserAgentActivity.class));
@@ -38,6 +42,22 @@ public class MainActivity extends AppCompatActivity {
 
         menuQrCode.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, QrCodeActivity.class));
+        });
+
+        menuQrScanner.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, QrScannerActivity.class));
+        });
+
+        menuIpInfo.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, IpInfoActivity.class));
+        });
+
+        menuBmi.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, BmiCalculatorActivity.class));
+        });
+
+        menuDiscount.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, DiscountCalculatorActivity.class));
         });
 
         // Panggil auto-update saat aplikasi dibuka
