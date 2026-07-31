@@ -21,6 +21,7 @@
         <activity android:name=".UserAgentActivity" android:exported="false" />
         <activity android:name=".DeviceInfoActivity" android:exported="false" />
         <activity android:name=".TimestampActivity" android:exported="false" />
+        <activity android:name=".QrCodeActivity" android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
