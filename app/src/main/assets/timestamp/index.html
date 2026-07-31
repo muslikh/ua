@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoStamp - Image Geotagging Tool</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS for interactive map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>GeoStamp</h1>
+            <p>Upload foto, sesuaikan lokasi di peta interaktif, lalu download hasilnya.</p>
+        </header>
+
+        <main>
+            <div class="left-panel">
+                <div class="upload-zone" id="uploadZone">
+                    <input type="file" id="fileInput" accept="image/*" hidden>
+                    <div class="upload-content">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="upload-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        <p>Klik atau Drag & Drop foto ke sini</p>
+                    </div>
+                </div>
+
+                <div class="canvas-container hidden" id="canvasContainer">
+                    <canvas id="previewCanvas"></canvas>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="settings-card">
+                    <h2>Pengaturan Stamp</h2>
+                    
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="dateInput">Tanggal</label>
+                            <input type="date" id="dateInput">
+                        </div>
+                        <div class="form-group">
+                            <label for="timeInput">Waktu</label>
+                            <input type="time" id="timeInput" step="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Pilih Lokasi (Gunakan kolom pencarian di pojok kanan peta)</label>
+                        <div id="uiMap" style="height: 250px; border-radius: 8px; z-index: 1;"></div>
+                    </div>
+
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="latInput">Latitude</label>
+                            <input type="text" id="latInput" placeholder="-7.xxx">
+                        </div>
+                        <div class="form-group">
+                            <label for="lngInput">Longitude</label>
+                            <input type="text" id="lngInput" placeholder="112.xxx">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="addressInput">Alamat / Keterangan Lokasi</label>
+                        <textarea id="addressInput" rows="3" placeholder="Alamat otomatis terisi dari peta..."></textarea>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn btn-primary" id="btnApply">Terapkan Perubahan ke Foto</button>
+                        <button class="btn btn-success" id="btnDownload" disabled>⬇️ Download Foto</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/exifr/dist/lite.umd.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

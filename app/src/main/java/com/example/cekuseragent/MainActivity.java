@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
         MaterialCardView menuUserAgent = findViewById(R.id.menuUserAgent);
         MaterialCardView menuDeviceInfo = findViewById(R.id.menuDeviceInfo);
+        MaterialCardView menuTimestamp = findViewById(R.id.menuTimestamp);
 
         menuUserAgent.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, UserAgentActivity.class));
@@ -28,6 +29,10 @@ public class MainActivity extends AppCompatActivity {
 
         menuDeviceInfo.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, DeviceInfoActivity.class));
+        });
+
+        menuTimestamp.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, TimestampActivity.class));
         });
 
         // Panggil auto-update saat aplikasi dibuka
