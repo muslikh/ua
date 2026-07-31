@@ -4,10 +4,11 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
 
 public class MainActivity extends AppCompatActivity {
     @Override
@@ -15,19 +16,35 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         TextView tvUserAgent = findViewById(R.id.tvUserAgent);
-        Button btnCopy = findViewById(R.id.btnCopy);
+        TextView tvVersion = findViewById(R.id.tvVersion);
+        MaterialButton btnCopy = findViewById(R.id.btnCopy);
         
-        // Ambil User Agent Android murni (Dalvik)
+        // Tampilkan versi saat ini
+        tvVersion.setText("Versi: " + BuildConfig.VERSION_NAME);
+        
+        // Ambil User Agent Android murni
         String userAgent = System.getProperty("http.agent");
         
-        tvUserAgent.setText("User Agent HP Anda:\n\n" + userAgent);
+        if (userAgent != null) {
+            tvUserAgent.setText(userAgent);
+        } else {
+            tvUserAgent.setText("Tidak dapat memuat User Agent");
+        }
 
         btnCopy.setOnClickListener(v -> {
             ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData clip = ClipData.newPlainText("User Agent", userAgent);
-            clipboard.setPrimaryClip(clip);
-            Toast.makeText(MainActivity.this, "User Agent berhasil di-copy!", Toast.LENGTH_SHORT).show();
+            if (clipboard != null && userAgent != null) {
+                ClipData clip = ClipData.newPlainText("User Agent", userAgent);
+                clipboard.setPrimaryClip(clip);
+                Snackbar.make(v, "User Agent berhasil disalin!", Snackbar.LENGTH_SHORT).show();
+            }
         });
+
+        // Panggil auto-update saat aplikasi dibuka
+        new UpdateHelper(this).checkForUpdate();
     }
 }

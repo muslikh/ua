@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Direktori untuk file yang didownload via DownloadManager (biasanya Download) -->
+    <external-path name="external_files" path="." />
+    <!-- Menambahkan dukungan tambahan untuk direktori cache dan file eksternal jika dibutuhkan -->
+    <external-files-path name="external_files_dir" path="." />
+    <external-cache-path name="external_cache" path="." />
+    <cache-path name="cache" path="." />
+    <files-path name="files" path="." />
+</paths>

@@ -1,0 +1,44 @@
+name: Android Release
+
+on:
+  push:
+    tags:
+      - 'v*' # Workflow berjalan ketika Anda melakukan push tag (misal: git tag v1.0 lalu git push origin v1.0)
+
+jobs:
+  build-and-release:
+    name: Build APK and Create Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build Debug APK
+        # Kita menggunakan assembleDebug agar APK otomatis di-sign menggunakan debug key standar Android. 
+        # (Untuk rilis produksi yang sesungguhnya, Anda sebaiknya men-setup Keystore dan menggunakan assembleRelease).
+        run: ./gradlew assembleDebug
+
+      - name: Rename APK
+        run: mv app/build/outputs/apk/debug/app-debug.apk CekUserAgent-${{ github.ref_name }}.apk
+
+      - name: Create Release on GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+          files: CekUserAgent-${{ github.ref_name }}.apk
+          name: Release ${{ github.ref_name }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
