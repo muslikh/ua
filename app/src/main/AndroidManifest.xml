@@ -6,7 +6,7 @@
 
     <application
         android:allowBackup="true"
-        android:label="Cek User Agent"
+        android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.CekUserAgent">
         <activity
@@ -17,6 +17,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".UserAgentActivity" android:exported="false" />
+        <activity android:name=".DeviceInfoActivity" android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
