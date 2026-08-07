@@ -68,6 +68,10 @@ public class AppBlockerManager {
         return new HashSet<>(prefs.getStringSet(KEY_BLOCKED_PACKAGES, new HashSet<>()));
     }
 
+    public int getBlockedCount() {
+        return getBlockedPackages().size();
+    }
+
     public boolean isPackageBlocked(String packageName) {
         return getBlockedPackages().contains(packageName);
     }
