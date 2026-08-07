@@ -17,6 +17,8 @@ public class MainActivity extends AppCompatActivity {
 
         MaterialCardView menuDeviceInfo = findViewById(R.id.menuDeviceInfo);
         MaterialCardView menuTimestamp = findViewById(R.id.menuTimestamp);
+        MaterialCardView menuAppLock = findViewById(R.id.menuAppLock);
+        MaterialCardView menuAppBlocker = findViewById(R.id.menuAppBlocker);
         TextView tvVersion = findViewById(R.id.tvVersion);
 
         try {
@@ -33,6 +35,14 @@ public class MainActivity extends AppCompatActivity {
 
         menuTimestamp.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, TimestampActivity.class));
+        });
+
+        menuAppLock.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, AppLockActivity.class));
+        });
+
+        menuAppBlocker.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, AppBlockerActivity.class));
         });
 
         // Panggil auto-update saat aplikasi dibuka

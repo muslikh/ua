@@ -42,9 +42,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
                 android:scaleType="fitCenter"
                 android:background="#EEEEEE"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/tvPreviewHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🔍 Ketuk gambar di atas untuk melihat preview ukuran penuh (Fullscreen)"
+                android:textSize="12sp"
+                android:textAlignment="center"
+                android:textColor="?android:attr/textColorSecondary"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="12dp"
                 android:visibility="gone"/>
 
             <LinearLayout

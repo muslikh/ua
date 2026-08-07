@@ -118,11 +118,32 @@ public class TimestampActivity extends AppCompatActivity {
             applyStampToImage();
         });
 
+        ivPreview.setOnClickListener(v -> {
+            if (stampedBitmap != null) {
+                showFullscreenPreview(stampedBitmap);
+            } else if (originalBitmap != null) {
+                showFullscreenPreview(originalBitmap);
+            }
+        });
+
         btnSaveImage.setOnClickListener(v -> {
             if (stampedBitmap != null) {
                 saveImageToGallery(stampedBitmap);
             }
         });
+    }
+
+    private void showFullscreenPreview(Bitmap bitmap) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        ImageView fullImageView = new ImageView(this);
+        fullImageView.setImageBitmap(bitmap);
+        fullImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        fullImageView.setBackgroundColor(Color.BLACK);
+        
+        AlertDialog dialog = builder.setView(fullImageView).create();
+        fullImageView.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
+        Toast.makeText(this, "Ketuk gambar untuk menutup preview", Toast.LENGTH_SHORT).show();
     }
 
     private void setupDateAndTimePickers() {
@@ -151,6 +172,8 @@ public class TimestampActivity extends AppCompatActivity {
 
             ivPreview.setImageBitmap(originalBitmap);
             ivPreview.setVisibility(View.VISIBLE);
+            View tvHint = findViewById(R.id.tvPreviewHint);
+            if (tvHint != null) tvHint.setVisibility(View.VISIBLE);
             
             // Set current date time as fallback
             SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -246,39 +269,65 @@ public class TimestampActivity extends AppCompatActivity {
                 JSONObject json = new JSONObject(sb.toString());
                 if (json.getString("status").equals("success")) {
                     JSONArray resultsArray = json.getJSONArray("results");
-                    List<String> names = new ArrayList<>();
+                    List<String> displayTitles = new ArrayList<>();
+                    List<String> fullAddresses = new ArrayList<>();
                     List<double[]> coords = new ArrayList<>();
                     
                     for (int i = 0; i < resultsArray.length(); i++) {
                         JSONObject item = resultsArray.getJSONObject(i);
-                        names.add(item.getString("name"));
-                        JSONObject center = item.getJSONObject("center");
-                        coords.add(new double[]{center.getDouble("lat"), center.getDouble("lng")});
+                        String title = item.optString("title", "");
+                        String subtitle = item.optString("subtitle", "");
+                        String fullAddr = item.optString("fullAddress", item.optString("formatted_address", ""));
+                        
+                        double lat = item.optDouble("lat", 0.0);
+                        double lng = item.optDouble("lng", 0.0);
+                        if (lat == 0.0 && item.has("geometry")) {
+                            JSONObject geom = item.getJSONObject("geometry").getJSONObject("location");
+                            lat = geom.optDouble("lat", 0.0);
+                            lng = geom.optDouble("lng", 0.0);
+                        } else if (lat == 0.0 && item.has("center")) {
+                            JSONObject center = item.getJSONObject("center");
+                            lat = center.optDouble("lat", 0.0);
+                            lng = center.optDouble("lng", 0.0);
+                        }
+                        
+                        String displayText = title;
+                        if (!subtitle.isEmpty() && !subtitle.equals(title)) {
+                            displayText += "\n" + subtitle;
+                        } else if (displayText.isEmpty()) {
+                            displayText = fullAddr;
+                        }
+                        
+                        displayTitles.add(displayText);
+                        fullAddresses.add(fullAddr.isEmpty() ? title : fullAddr);
+                        coords.add(new double[]{lat, lng});
                     }
 
-                    mainHandler.post(() -> showSearchResultsDialog(names, coords));
+                    mainHandler.post(() -> showSearchResultsDialog(displayTitles, fullAddresses, coords));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                mainHandler.post(() -> Toast.makeText(this, "Gagal mencari", Toast.LENGTH_SHORT).show());
+                mainHandler.post(() -> Toast.makeText(this, "Gagal mencari: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         });
     }
 
-    private void showSearchResultsDialog(List<String> names, List<double[]> coords) {
-        if (names.isEmpty()) {
-            Toast.makeText(this, "Tidak ada hasil", Toast.LENGTH_SHORT).show();
+    private void showSearchResultsDialog(List<String> displayTitles, List<String> fullAddresses, List<double[]> coords) {
+        if (displayTitles.isEmpty()) {
+            Toast.makeText(this, "Tidak ada hasil lokasi ditemukan", Toast.LENGTH_SHORT).show();
             return;
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Pilih Lokasi");
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, names);
+        builder.setTitle("Pilih Hasil Lokasi (" + displayTitles.size() + ")");
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_2, android.R.id.text1, displayTitles);
         builder.setAdapter(adapter, (dialog, which) -> {
             double[] selected = coords.get(which);
             etLat.setText(String.valueOf(selected[0]));
             etLng.setText(String.valueOf(selected[1]));
-            etAddress.setText(names.get(which));
+            etAddress.setText(fullAddresses.get(which));
+            Toast.makeText(this, "Lokasi terpilih: " + fullAddresses.get(which), Toast.LENGTH_SHORT).show();
         });
+        builder.setNegativeButton("Tutup", null);
         builder.show();
     }
 
