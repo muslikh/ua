@@ -97,7 +97,7 @@ public class AppLockActivity extends AppCompatActivity {
             startActivity(AppLockManager.getUsageStatsIntent());
         });
 
-        etSearchApp.addTextChangedWatcher(new TextWatcher() {
+        etSearchApp.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
