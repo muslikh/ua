@@ -65,7 +65,8 @@ public class UpdateHelper {
                 conn.setConnectTimeout(10000);
                 conn.setReadTimeout(10000);
 
-                if (conn.getResponseCode() == 200) {
+                int responseCode = conn.getResponseCode();
+                if (responseCode == 200) {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                     StringBuilder response = new StringBuilder();
                     String line;
@@ -99,7 +100,7 @@ public class UpdateHelper {
                         mainHandler.post(() -> Toast.makeText(activity, "Aplikasi Anda sudah versi terbaru (v" + currentVersion + ")", Toast.LENGTH_LONG).show());
                     }
                 } else if (isManual) {
-                    mainHandler.post(() -> Toast.makeText(activity, "Gagal memeriksa pembaruan (Kode: " + conn.getResponseCode() + ")", Toast.LENGTH_SHORT).show());
+                    mainHandler.post(() -> Toast.makeText(activity, "Gagal memeriksa pembaruan (Kode: " + responseCode + ")", Toast.LENGTH_SHORT).show());
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Error checking update", e);
