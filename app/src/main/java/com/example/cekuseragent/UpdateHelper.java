@@ -48,6 +48,14 @@ public class UpdateHelper {
     }
 
     public void checkForUpdate() {
+        checkForUpdate(false);
+    }
+
+    public void checkForUpdate(boolean isManual) {
+        if (isManual) {
+            Toast.makeText(activity, "Memeriksa pembaruan...", Toast.LENGTH_SHORT).show();
+        }
+
         executor.execute(() -> {
             try {
                 URL url = new URL(API_URL);
@@ -87,10 +95,17 @@ public class UpdateHelper {
                         final String finalDownloadUrl = downloadUrl;
                         final String releaseNotes = jsonObject.optString("body", "");
                         mainHandler.post(() -> showUpdateDialog(latestVersion, finalDownloadUrl, releaseNotes));
+                    } else if (isManual) {
+                        mainHandler.post(() -> Toast.makeText(activity, "Aplikasi Anda sudah versi terbaru (v" + currentVersion + ")", Toast.LENGTH_LONG).show());
                     }
+                } else if (isManual) {
+                    mainHandler.post(() -> Toast.makeText(activity, "Gagal memeriksa pembaruan (Kode: " + conn.getResponseCode() + ")", Toast.LENGTH_SHORT).show());
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Error checking update", e);
+                if (isManual) {
+                    mainHandler.post(() -> Toast.makeText(activity, "Gagal terhubung ke server pembaruan", Toast.LENGTH_SHORT).show());
+                }
             }
         });
     }

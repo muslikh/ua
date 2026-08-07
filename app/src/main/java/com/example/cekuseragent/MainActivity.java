@@ -34,10 +34,12 @@ public class MainActivity extends AppCompatActivity {
         try {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             String version = pInfo.versionName;
-            tvVersion.setText("MyTools Pro v" + version);
+            tvVersion.setText("MyTools Pro v" + version + " • Cek Pembaruan 🔄");
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
+
+        tvVersion.setOnClickListener(v -> new UpdateHelper(this).checkForUpdate(true));
 
         menuDeviceInfo.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, DeviceInfoActivity.class)));
         menuTimestamp.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TimestampActivity.class)));
