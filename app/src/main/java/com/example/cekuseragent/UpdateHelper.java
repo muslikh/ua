@@ -143,7 +143,7 @@ public class UpdateHelper {
                         .setTitle("Izin Instalasi Diperlukan")
                         .setMessage("Untuk memperbarui aplikasi, izinkan instalasi dari sumber tidak dikenal untuk MyTools.")
                         .setPositiveButton("Buka Pengaturan", (d, w) -> {
-                            Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES_SETTINGS,
+                            Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
                                     Uri.parse("package:" + activity.getPackageName()));
                             activity.startActivity(intent);
                         })
