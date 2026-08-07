@@ -3,7 +3,7 @@ name: Android Release
 on:
   push:
     tags:
-      - 'v*' # Workflow berjalan ketika Anda melakukan push tag (misal: git tag v1.0 lalu git push origin v1.0)
+      - 'v*'
 
 jobs:
   build-and-release:
@@ -24,10 +24,10 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.9'
 
       - name: Build Debug APK
-        # Kita menggunakan assembleDebug agar APK otomatis di-sign menggunakan debug key standar Android. 
-        # (Untuk rilis produksi yang sesungguhnya, Anda sebaiknya men-setup Keystore dan menggunakan assembleRelease).
         run: gradle assembleDebug
 
       - name: Rename APK
