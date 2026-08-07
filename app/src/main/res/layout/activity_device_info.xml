@@ -6,21 +6,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="?android:attr/colorBackground"
+    android:background="@color/background"
     tools:context=".DeviceInfoActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:elevation="0dp"
+        android:background="@android:color/transparent">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Info Perangkat"
+            app:title="Info Perangkat &amp; UA"
             app:titleCentered="true"
             app:navigationIcon="?attr/homeAsUpIndicator"
-            android:elevation="4dp"/>
+            android:background="@color/surface"/>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -31,65 +33,226 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="16dp">
 
-            <ImageView
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:src="@android:drawable/ic_dialog_info"
-                app:tint="?attr/colorPrimary"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="16dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Spesifikasi &amp; Jaringan"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="16dp"/>
-
+            <!-- Hero Device Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="20dp"
                 app:cardElevation="2dp"
-                app:cardCornerRadius="16dp"
-                app:cardBackgroundColor="?attr/colorSurface">
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/cardBorder"
+                app:cardBackgroundColor="@color/surface">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="18dp">
+
+                    <ImageView
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:src="@android:drawable/ic_dialog_info"
+                        app:tint="#FFFFFF"
+                        android:background="@drawable/bg_icon_blue"
+                        android:padding="14dp"/>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="16dp">
+
+                        <TextView
+                            android:id="@+id/tvDeviceModelHeader"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Perangkat Android"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/onSurface"/>
+
+                        <TextView
+                            android:id="@+id/tvAndroidVersionHeader"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Android 14 (API 34)"
+                            android:textSize="13sp"
+                            android:textColor="@color/primary"
+                            android:layout_marginTop="2dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card 1: Hardware & System Info -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/cardBorder"
+                app:cardBackgroundColor="@color/surface">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="16dp">
 
                     <TextView
-                        android:id="@+id/tvDeviceInfo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📱 Identitas &amp; Spesifikasi Sistem"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/onSurface"/>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/cardBorder"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"/>
+
+                    <TextView
+                        android:id="@+id/tvHardwareInfo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Memuat info..."
-                        android:textSize="16sp"
-                        android:textColor="?attr/colorOnSurface"
+                        android:text="Memuat spesifikasi..."
+                        android:textSize="13sp"
+                        android:textColor="@color/onSurface"
                         android:textIsSelectable="true"
-                        android:fontFamily="monospace"
-                        android:lineSpacingExtra="6dp" />
+                        android:lineSpacingExtra="4dp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Card 2: User Agent Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/cardBorder"
+                app:cardBackgroundColor="@color/surface">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="🌐 User Agent String"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/onSurface"/>
+
+                        <Button
+                            android:id="@+id/btnCopyUa"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Salin UA"
+                            android:textColor="@color/primary"/>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/cardBorder"
+                        android:layout_marginTop="6dp"
+                        android:layout_marginBottom="10dp"/>
+
+                    <TextView
+                        android:id="@+id/tvUserAgent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_badge_neutral"
+                        android:padding="12dp"
+                        android:text="Memuat User Agent..."
+                        android:textSize="12sp"
+                        android:fontFamily="monospace"
+                        android:textColor="@color/onSurface"
+                        android:textIsSelectable="true"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card 3: Memory & Battery & Network -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="18dp"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/cardBorder"
+                app:cardBackgroundColor="@color/surface">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🔋 Status Baterai, RAM &amp; Jaringan"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/onSurface"/>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/cardBorder"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"/>
+
+                    <TextView
+                        android:id="@+id/tvLiveStatusInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Memuat status..."
+                        android:textSize="13sp"
+                        android:textColor="@color/onSurface"
+                        android:textIsSelectable="true"
+                        android:lineSpacingExtra="4dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Big Copy Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCopy"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginTop="24dp"
-                android:text="Salin Semua Info"
-                android:textSize="16sp"
+                android:layout_height="56dp"
+                android:text="Salin Semua Info Perangkat"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                app:icon="@android:drawable/ic_menu_edit"
+                app:icon="@android:drawable/ic_menu_save"
                 app:iconGravity="textStart"
-                app:cornerRadius="12dp"/>
+                app:cornerRadius="16dp"
+                android:layout_marginBottom="24dp"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

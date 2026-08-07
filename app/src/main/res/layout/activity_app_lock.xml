@@ -5,199 +5,306 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?android:attr/colorBackground">
+    android:background="@color/background">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:elevation="0dp"
+        android:background="@android:color/transparent">
+
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Kunci Aplikasi"
+            app:title="Kunci Aplikasi Pro"
             app:titleCentered="true"
-            app:navigationIcon="?attr/homeAsUpIndicator"/>
+            app:navigationIcon="?attr/homeAsUpIndicator"
+            android:background="@color/surface"/>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-        <!-- Master Switch Card -->
-        <com.google.android.material.card.MaterialCardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp">
-            
-            <LinearLayout
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Master Security Card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="16dp">
-
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@android:drawable/ic_lock_lock"
-                    app:tint="?attr/colorPrimary"
-                    android:background="@drawable/circle_bg"
-                    android:padding="8dp"/>
-
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/cardBorder"
+                app:cardBackgroundColor="@color/surface">
+                
                 <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="12dp"
-                    android:layout_marginEnd="8dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Layanan Kunci Aplikasi"
-                        android:textSize="16sp"
-                        android:textStyle="bold"/>
-
-                    <TextView
-                        android:id="@+id/tvLockStatus"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Status: Nonaktif"
-                        android:textSize="12sp"
-                        android:textColor="?android:attr/textColorSecondary"/>
-                </LinearLayout>
-
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/switchMasterLock"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- PIN Settings Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="12dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="PIN Keamanan Saat Ini"
-                    android:textSize="14sp"
-                    android:layout_marginStart="8dp"/>
-
-                <Button
-                    android:id="@+id/btnChangePin"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Ubah PIN (Default: 1234)"/>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Permission Warning Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardPermissionWarning"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="1dp"
-            app:cardBackgroundColor="#FFF3E0"
-            android:visibility="gone">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="⚠️ Izin Sistem Diperlukan"
-                    android:textStyle="bold"
-                    android:textColor="#E65100"
-                    android:textSize="14sp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Aktifkan Izin Akses Penggunaan (Usage Access) agar aplikasi dapat mendeteksi saat aplikasi yang terkunci dibuka."
-                    android:textSize="12sp"
-                    android:textColor="#5D4037"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="8dp"/>
-
-                <Button
-                    android:id="@+id/btnGrantPermission"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Buka Pengaturan Izin"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"/>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                    android:orientation="vertical"
+                    android:padding="18dp">
 
-        <!-- Search Bar -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Cari Aplikasi..."
-            app:startIconDrawable="@android:drawable/ic_menu_search"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etSearchApp"
+                        <ImageView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:src="@android:drawable/ic_lock_lock"
+                            app:tint="#FFFFFF"
+                            android:background="@drawable/bg_icon_purple"
+                            android:padding="12dp"/>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="14dp"
+                            android:layout_marginEnd="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Proteksi Kunci Aplikasi"
+                                android:textSize="17sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/onSurface"/>
+
+                            <TextView
+                                android:id="@+id/tvLockStatus"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Status: Siaga Memproteksi"
+                                android:textSize="13sp"
+                                android:textColor="@color/success"
+                                android:layout_marginTop="2dp"/>
+                        </LinearLayout>
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switchMasterLock"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/cardBorder"
+                        android:layout_marginTop="14dp"
+                        android:layout_marginBottom="14dp"/>
+
+                    <!-- PIN Settings row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tvPinPreview"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="🔐 PIN Keamanan: 1234"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/onSurfaceVariant"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnChangePin"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Ubah PIN"
+                            android:textSize="13sp"
+                            app:cornerRadius="12dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Permission Diagnostics Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardPermissions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"
-                android:maxLines="1"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginBottom="14dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#FCD34D"
+                app:cardBackgroundColor="#FFFBEB">
 
-        <TextView
-            android:id="@+id/tvAppCount"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Memuat daftar aplikasi..."
-            android:textSize="12sp"
-            android:textColor="?android:attr/textColorSecondary"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="4dp"/>
-    </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⚙️ Panduan Izin Agar Kunci Aplikasi Berjalan 100%"
+                        android:textStyle="bold"
+                        android:textColor="#92400E"
+                        android:textSize="14sp"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvApps"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingBottom="16dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Aktifkan izin di bawah agar sistem Android dapat memunculkan layar kunci PIN saat aplikasi dibuka:"
+                        android:textSize="12sp"
+                        android:textColor="#78350F"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="12dp"/>
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"/>
-    </FrameLayout>
+                    <!-- Item 1: Overlay Permission -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
 
+                        <TextView
+                            android:id="@+id/tvOverlayStatus"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="1. Tampil di Atas Aplikasi Lain"
+                            android:textSize="13sp"
+                            android:textColor="#92400E"/>
+
+                        <Button
+                            android:id="@+id/btnPermOverlay"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Aktifkan"
+                            android:textColor="@color/primary"/>
+                    </LinearLayout>
+
+                    <!-- Item 2: Accessibility Permission -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:id="@+id/tvAccessibilityStatus"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="2. Aksesibilitas (Deteksi Cepat 0ms)"
+                            android:textSize="13sp"
+                            android:textColor="#92400E"/>
+
+                        <Button
+                            android:id="@+id/btnPermAccessibility"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Aktifkan"
+                            android:textColor="@color/primary"/>
+                    </LinearLayout>
+
+                    <!-- Item 3: Usage Access -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tvUsageStatus"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="3. Akses Penggunaan (Usage Stats)"
+                            android:textSize="13sp"
+                            android:textColor="#92400E"/>
+
+                        <Button
+                            android:id="@+id/btnPermUsage"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Aktifkan"
+                            android:textColor="@color/primary"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Search Box -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Cari Aplikasi..."
+                app:startIconDrawable="@android:drawable/ic_menu_search"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etSearchApp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:maxLines="1"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- App Count & Filter summary -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:id="@+id/tvAppCount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Memuat daftar aplikasi..."
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/onSurfaceVariant"/>
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="450dp">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvApps"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:paddingBottom="16dp"/>
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"/>
+            </FrameLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </LinearLayout>

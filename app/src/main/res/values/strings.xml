@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">My Tools</string>
+    <string name="app_name">My Tools Pro</string>
+    <string name="accessibility_service_description">Layanan Aksesibilitas MyTools digunakan secara aman dan lokal hanya untuk mendeteksi saat aplikasi yang Anda kunci dibuka, agar layar kunci PIN dapat langsung ditampilkan untuk melindungi privasi Anda.</string>
 </resources>

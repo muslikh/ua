@@ -5,18 +5,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?android:attr/colorBackground">
+    android:background="@color/background">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:elevation="0dp"
+        android:background="@android:color/transparent">
+
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Blokir Akses Internet"
+            app:title="Firewall Pemblokir Internet"
             app:titleCentered="true"
-            app:navigationIcon="?attr/homeAsUpIndicator"/>
+            app:navigationIcon="?attr/homeAsUpIndicator"
+            android:background="@color/surface"/>
     </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
@@ -30,55 +34,57 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp">
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/cardBorder"
+            app:cardBackgroundColor="@color/surface">
             
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:padding="16dp">
+                android:padding="18dp">
 
                 <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:src="@android:drawable/ic_lock_power_off"
-                    app:tint="#D32F2F"
-                    android:background="@drawable/circle_bg"
-                    android:padding="8dp"/>
+                    app:tint="#FFFFFF"
+                    android:background="@drawable/bg_icon_rose"
+                    android:padding="12dp"/>
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical"
-                    android:layout_marginStart="12dp"
+                    android:layout_marginStart="14dp"
                     android:layout_marginEnd="8dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Firewall Internet"
+                        android:text="Layanan Firewall VPN"
                         android:textSize="16sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold"
+                        android:textColor="@color/onSurface"/>
 
                     <TextView
                         android:id="@+id/tvBlockerStatus"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Status: Nonaktif"
-                        android:textSize="12sp"
-                        android:textColor="?android:attr/textColorSecondary"/>
+                        android:textSize="13sp"
+                        android:textColor="@color/onSurfaceVariant"
+                        android:layout_marginTop="2dp"/>
                 </LinearLayout>
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/switchMasterBlocker"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:useMaterialThemeColors="false"
-                    app:thumbTint="@color/switch_blocker_thumb"
-                    app:trackTint="@color/switch_blocker_track"/>
+                    android:layout_height="wrap_content"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -88,6 +94,10 @@
             android:layout_height="wrap_content"
             android:hint="Cari Aplikasi..."
             app:startIconDrawable="@android:drawable/ic_menu_search"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -104,7 +114,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="4dp">
 
             <TextView
                 android:id="@+id/tvAppCount"
@@ -112,15 +123,17 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Memuat aplikasi..."
-                android:textSize="12sp"
-                android:textColor="?android:attr/textColorSecondary"/>
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="@color/onSurfaceVariant"/>
 
             <Button
                 android:id="@+id/btnClearAllBlocks"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Batal Semua"/>
+                android:text="Buka Semua"
+                android:textColor="@color/primary"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -134,6 +147,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
             android:paddingBottom="16dp"/>
 
         <ProgressBar

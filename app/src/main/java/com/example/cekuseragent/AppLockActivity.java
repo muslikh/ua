@@ -3,6 +3,7 @@ package com.example.cekuseragent;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,13 +25,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -39,8 +40,10 @@ import java.util.concurrent.Executors;
 public class AppLockActivity extends AppCompatActivity {
     private AppLockManager lockManager;
     private SwitchMaterial switchMasterLock;
-    private TextView tvLockStatus, tvAppCount;
-    private MaterialCardView cardPermissionWarning;
+    private TextView tvLockStatus, tvPinPreview, tvAppCount;
+    private MaterialCardView cardPermissions;
+    private TextView tvOverlayStatus, tvAccessibilityStatus, tvUsageStatus;
+    private Button btnPermOverlay, btnPermAccessibility, btnPermUsage;
     private RecyclerView rvApps;
     private ProgressBar progressBar;
     private TextInputEditText etSearchApp;
@@ -63,13 +66,22 @@ public class AppLockActivity extends AppCompatActivity {
 
         switchMasterLock = findViewById(R.id.switchMasterLock);
         tvLockStatus = findViewById(R.id.tvLockStatus);
+        tvPinPreview = findViewById(R.id.tvPinPreview);
         tvAppCount = findViewById(R.id.tvAppCount);
-        cardPermissionWarning = findViewById(R.id.cardPermissionWarning);
+        cardPermissions = findViewById(R.id.cardPermissions);
+
+        tvOverlayStatus = findViewById(R.id.tvOverlayStatus);
+        tvAccessibilityStatus = findViewById(R.id.tvAccessibilityStatus);
+        tvUsageStatus = findViewById(R.id.tvUsageStatus);
+
+        btnPermOverlay = findViewById(R.id.btnPermOverlay);
+        btnPermAccessibility = findViewById(R.id.btnPermAccessibility);
+        btnPermUsage = findViewById(R.id.btnPermUsage);
+
         rvApps = findViewById(R.id.rvApps);
         progressBar = findViewById(R.id.progressBar);
         etSearchApp = findViewById(R.id.etSearchApp);
-        Button btnChangePin = findViewById(R.id.btnChangePin);
-        Button btnGrantPermission = findViewById(R.id.btnGrantPermission);
+        MaterialButton btnChangePin = findViewById(R.id.btnChangePin);
 
         rvApps.setLayoutManager(new LinearLayoutManager(this));
         adapter = new AppLockAdapter(appList, (item, isLocked) -> {
@@ -79,23 +91,21 @@ public class AppLockActivity extends AppCompatActivity {
         rvApps.setAdapter(adapter);
 
         updateMasterSwitchUI();
+        updatePinUI();
 
         switchMasterLock.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked && !lockManager.hasUsageStatsPermission()) {
-                switchMasterLock.setChecked(false);
-                promptPermissionDialog();
-                return;
-            }
             lockManager.setLockEnabled(isChecked);
             updateMasterSwitchUI();
+            if (isChecked && (!lockManager.hasOverlayPermission() || !lockManager.isAccessibilityEnabled())) {
+                Toast.makeText(this, "Tips: Aktifkan izin Tampilan & Aksesibilitas di bawah agar proteksi berjalan maksimal!", Toast.LENGTH_LONG).show();
+            }
         });
 
-        btnChangePin.setText("Ubah PIN (" + lockManager.getPin() + ")");
-        btnChangePin.setOnClickListener(v -> showChangePinDialog(btnChangePin));
+        btnChangePin.setOnClickListener(v -> showChangePinDialog());
 
-        btnGrantPermission.setOnClickListener(v -> {
-            startActivity(AppLockManager.getUsageStatsIntent());
-        });
+        btnPermOverlay.setOnClickListener(v -> startActivity(AppLockManager.getOverlayIntent(this)));
+        btnPermAccessibility.setOnClickListener(v -> startActivity(AppLockManager.getAccessibilityIntent()));
+        btnPermUsage.setOnClickListener(v -> startActivity(AppLockManager.getUsageStatsIntent()));
 
         etSearchApp.addTextChangedListener(new TextWatcher() {
             @Override
@@ -116,46 +126,82 @@ public class AppLockActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        checkPermissions();
+        refreshPermissionCards();
     }
 
-    private void checkPermissions() {
-        if (!lockManager.hasUsageStatsPermission()) {
-            cardPermissionWarning.setVisibility(View.VISIBLE);
+    private void refreshPermissionCards() {
+        boolean overlayOk = lockManager.hasOverlayPermission();
+        boolean accessOk = lockManager.isAccessibilityEnabled();
+        boolean usageOk = lockManager.hasUsageStatsPermission();
+
+        if (overlayOk) {
+            tvOverlayStatus.setText("1. Tampilan di Atas Aplikasi (✅ Aktif)");
+            tvOverlayStatus.setTextColor(Color.parseColor("#166534"));
+            btnPermOverlay.setText("Terpasang");
+            btnPermOverlay.setEnabled(false);
         } else {
-            cardPermissionWarning.setVisibility(View.GONE);
+            tvOverlayStatus.setText("1. Tampilan di Atas Aplikasi (⚠️ Wajib)");
+            tvOverlayStatus.setTextColor(Color.parseColor("#991B1B"));
+            btnPermOverlay.setText("Aktifkan");
+            btnPermOverlay.setEnabled(true);
+        }
+
+        if (accessOk) {
+            tvAccessibilityStatus.setText("2. Aksesibilitas (✅ Aktif - Deteksi 0ms)");
+            tvAccessibilityStatus.setTextColor(Color.parseColor("#166534"));
+            btnPermAccessibility.setText("Terpasang");
+            btnPermAccessibility.setEnabled(false);
+        } else {
+            tvAccessibilityStatus.setText("2. Aksesibilitas (⚡ Sangat Dianjurkan)");
+            tvAccessibilityStatus.setTextColor(Color.parseColor("#991B1B"));
+            btnPermAccessibility.setText("Aktifkan");
+            btnPermAccessibility.setEnabled(true);
+        }
+
+        if (usageOk) {
+            tvUsageStatus.setText("3. Akses Penggunaan (✅ Aktif)");
+            tvUsageStatus.setTextColor(Color.parseColor("#166534"));
+            btnPermUsage.setText("Terpasang");
+            btnPermUsage.setEnabled(false);
+        } else {
+            tvUsageStatus.setText("3. Akses Penggunaan (⚠️ Diperlukan)");
+            tvUsageStatus.setTextColor(Color.parseColor("#92400E"));
+            btnPermUsage.setText("Aktifkan");
+            btnPermUsage.setEnabled(true);
+        }
+
+        if (overlayOk && accessOk && usageOk) {
+            cardPermissions.setCardBackgroundColor(Color.parseColor("#F0FDF4"));
+            cardPermissions.setStrokeColor(Color.parseColor("#86EFAC"));
+        } else {
+            cardPermissions.setCardBackgroundColor(Color.parseColor("#FFFBEB"));
+            cardPermissions.setStrokeColor(Color.parseColor("#FCD34D"));
         }
     }
 
     private void updateMasterSwitchUI() {
         boolean enabled = lockManager.isLockEnabled();
         switchMasterLock.setChecked(enabled);
-        tvLockStatus.setText(enabled ? "Status: Aktif Memproteksi" : "Status: Nonaktif");
-        tvLockStatus.setTextColor(enabled ? 0xFF2E7D32 : 0xFF757575);
+        tvLockStatus.setText(enabled ? "Status: 🛡️ Proteksi Siaga Aktif" : "Status: Nonaktif");
+        tvLockStatus.setTextColor(enabled ? Color.parseColor("#166534") : Color.parseColor("#64748B"));
     }
 
-    private void promptPermissionDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle("Izin Akses Penggunaan Diperlukan")
-                .setMessage("Agar fitur Kunci Aplikasi dapat mendeteksi aplikasi yang dibuka, silakan berikan izin 'Akses Penggunaan' di pengaturan.")
-                .setPositiveButton("Buka Pengaturan", (d, w) -> {
-                    startActivity(AppLockManager.getUsageStatsIntent());
-                })
-                .setNegativeButton("Batal", null)
-                .show();
+    private void updatePinUI() {
+        tvPinPreview.setText("🔐 PIN Saat Ini: " + lockManager.getPin());
     }
 
-    private void showChangePinDialog(Button btnChangePin) {
+    private void showChangePinDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Ubah PIN Keamanan");
 
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(50, 40, 50, 10);
+        layout.setPadding(60, 40, 60, 10);
 
         final EditText input = new EditText(this);
         input.setHint("Masukkan 4 digit PIN baru...");
         input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        input.setTextSize(18f);
         layout.addView(input);
         builder.setView(layout);
 
@@ -163,10 +209,10 @@ public class AppLockActivity extends AppCompatActivity {
             String newPin = input.getText().toString().trim();
             if (newPin.length() == 4) {
                 lockManager.setPin(newPin);
-                btnChangePin.setText("Ubah PIN (" + newPin + ")");
-                Toast.makeText(this, "PIN berhasil diubah ke " + newPin, Toast.LENGTH_SHORT).show();
+                updatePinUI();
+                Toast.makeText(this, "PIN berhasil diubah ke: " + newPin, Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "PIN harus tepat 4 angka!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "PIN harus tepat 4 digit angka!", Toast.LENGTH_SHORT).show();
             }
         });
         builder.setNegativeButton("Batal", null);
@@ -182,10 +228,8 @@ public class AppLockActivity extends AppCompatActivity {
             Set<String> lockedSet = lockManager.getLockedPackages();
 
             for (ApplicationInfo appInfo : packages) {
-                // Don't show our own app
                 if (appInfo.packageName.equals(getPackageName())) continue;
 
-                // Check if it's a launchable app (has launcher intent)
                 Intent launchIntent = pm.getLaunchIntentForPackage(appInfo.packageName);
                 if (launchIntent == null) continue;
 
@@ -196,7 +240,6 @@ public class AppLockActivity extends AppCompatActivity {
                 list.add(new AppInfoItem(name, appInfo.packageName, icon, isLocked));
             }
 
-            // Sort: locked apps first, then alphabetical by name
             Collections.sort(list, (a, b) -> {
                 if (a.isChecked() != b.isChecked()) {
                     return a.isChecked() ? -1 : 1;
@@ -219,6 +262,6 @@ public class AppLockActivity extends AppCompatActivity {
         for (AppInfoItem item : appList) {
             if (item.isChecked()) lockedCount++;
         }
-        tvAppCount.setText("Daftar Aplikasi (" + appList.size() + " total, " + lockedCount + " terkunci)");
+        tvAppCount.setText("Daftar Aplikasi (" + appList.size() + " total, " + lockedCount + " terkunci 🔒)");
     }
 }

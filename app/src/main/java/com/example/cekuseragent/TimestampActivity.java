@@ -15,15 +15,12 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
-import android.text.InputType;
 import android.util.Base64;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -33,6 +30,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.exifinterface.media.ExifInterface;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.json.JSONArray;
@@ -56,13 +55,15 @@ import java.util.concurrent.Executors;
 
 public class TimestampActivity extends AppCompatActivity {
     private static final String GAS_URL = "https://script.google.com/macros/s/AKfycbyvUXTPcHdkn91I4xdgeZ4j-ouqbZv0ICD2sfokoQ5USAIc5A3slPVlkNEocR03gZp9SA/exec";
-    
+
     private ImageView ivPreview;
+    private MaterialCardView cardPreviewWrapper;
+    private View tvPreviewHint;
     private TextInputEditText etDate, etTime, etLat, etLng, etAddress;
-    private Button btnApplyStamp, btnSaveImage;
+    private MaterialButton btnApplyStamp, btnSaveImage;
     private Bitmap originalBitmap;
     private Bitmap stampedBitmap;
-    
+
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -87,15 +88,18 @@ public class TimestampActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> finish());
 
         ivPreview = findViewById(R.id.ivPreview);
+        cardPreviewWrapper = findViewById(R.id.cardPreviewWrapper);
+        tvPreviewHint = findViewById(R.id.tvPreviewHint);
+
         etDate = findViewById(R.id.etDate);
         etTime = findViewById(R.id.etTime);
         etLat = findViewById(R.id.etLat);
         etLng = findViewById(R.id.etLng);
         etAddress = findViewById(R.id.etAddress);
+
         btnApplyStamp = findViewById(R.id.btnApplyStamp);
         btnSaveImage = findViewById(R.id.btnSaveImage);
-        
-        Button btnSelectImage = findViewById(R.id.btnSelectImage);
+        MaterialButton btnSelectImage = findViewById(R.id.btnSelectImage);
         Button btnSearchLocation = findViewById(R.id.btnSearchLocation);
 
         btnSelectImage.setOnClickListener(v -> {
@@ -113,7 +117,7 @@ public class TimestampActivity extends AppCompatActivity {
                 Toast.makeText(this, "Pilih gambar terlebih dahulu", Toast.LENGTH_SHORT).show();
                 return;
             }
-            btnApplyStamp.setText("⏳ Memproses...");
+            btnApplyStamp.setText("⏳ Sedang Menerapkan Watermark...");
             btnApplyStamp.setEnabled(false);
             applyStampToImage();
         });
@@ -139,11 +143,11 @@ public class TimestampActivity extends AppCompatActivity {
         fullImageView.setImageBitmap(bitmap);
         fullImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         fullImageView.setBackgroundColor(Color.BLACK);
-        
+
         AlertDialog dialog = builder.setView(fullImageView).create();
         fullImageView.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
-        Toast.makeText(this, "Ketuk gambar untuk menutup preview", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Ketuk gambar untuk menutup", Toast.LENGTH_SHORT).show();
     }
 
     private void setupDateAndTimePickers() {
@@ -168,13 +172,12 @@ public class TimestampActivity extends AppCompatActivity {
         try {
             InputStream is = getContentResolver().openInputStream(uri);
             originalBitmap = BitmapFactory.decodeStream(is);
-            is.close();
+            if (is != null) is.close();
 
             ivPreview.setImageBitmap(originalBitmap);
-            ivPreview.setVisibility(View.VISIBLE);
-            View tvHint = findViewById(R.id.tvPreviewHint);
-            if (tvHint != null) tvHint.setVisibility(View.VISIBLE);
-            
+            if (cardPreviewWrapper != null) cardPreviewWrapper.setVisibility(View.VISIBLE);
+            if (tvPreviewHint != null) tvPreviewHint.setVisibility(View.VISIBLE);
+
             // Set current date time as fallback
             SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
@@ -191,10 +194,9 @@ public class TimestampActivity extends AppCompatActivity {
                     etLng.setText(String.valueOf(latLong[1]));
                     fetchAddress(latLong[0], latLong[1]);
                 }
-                
+
                 String datetime = exif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL);
                 if (datetime != null && datetime.length() >= 19) {
-                    // format: YYYY:MM:DD HH:MM:SS
                     String d = datetime.substring(0, 10).replace(":", "-");
                     String t = datetime.substring(11);
                     etDate.setText(d);
@@ -209,7 +211,7 @@ public class TimestampActivity extends AppCompatActivity {
     }
 
     private void fetchAddress(double lat, double lng) {
-        etAddress.setHint("Mencari alamat...");
+        etAddress.setHint("Mencari alamat via Geocode...");
         executorService.execute(() -> {
             try {
                 URL url = new URL(GAS_URL + "?action=geocode&lat=" + lat + "&lng=" + lng);
@@ -238,12 +240,12 @@ public class TimestampActivity extends AppCompatActivity {
 
     private void showSearchDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Cari Lokasi");
-        
+        builder.setTitle("Cari Lokasi / Alamat");
+
         final EditText input = new EditText(this);
-        input.setHint("Masukkan kata kunci...");
+        input.setHint("Ketik nama gedung, jalan, atau kota...");
         builder.setView(input);
-        
+
         builder.setPositiveButton("Cari", (dialog, which) -> {
             String query = input.getText().toString().trim();
             if (!query.isEmpty()) {
@@ -255,7 +257,7 @@ public class TimestampActivity extends AppCompatActivity {
     }
 
     private void performSearch(String query) {
-        Toast.makeText(this, "Mencari...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Mencari lokasi...", Toast.LENGTH_SHORT).show();
         executorService.execute(() -> {
             try {
                 URL url = new URL(GAS_URL + "?action=search&q=" + URLEncoder.encode(query, "UTF-8"));
@@ -272,13 +274,13 @@ public class TimestampActivity extends AppCompatActivity {
                     List<String> displayTitles = new ArrayList<>();
                     List<String> fullAddresses = new ArrayList<>();
                     List<double[]> coords = new ArrayList<>();
-                    
+
                     for (int i = 0; i < resultsArray.length(); i++) {
                         JSONObject item = resultsArray.getJSONObject(i);
                         String title = item.optString("title", "");
                         String subtitle = item.optString("subtitle", "");
                         String fullAddr = item.optString("fullAddress", item.optString("formatted_address", ""));
-                        
+
                         double lat = item.optDouble("lat", 0.0);
                         double lng = item.optDouble("lng", 0.0);
                         if (lat == 0.0 && item.has("geometry")) {
@@ -290,14 +292,14 @@ public class TimestampActivity extends AppCompatActivity {
                             lat = center.optDouble("lat", 0.0);
                             lng = center.optDouble("lng", 0.0);
                         }
-                        
+
                         String displayText = title;
                         if (!subtitle.isEmpty() && !subtitle.equals(title)) {
                             displayText += "\n" + subtitle;
                         } else if (displayText.isEmpty()) {
                             displayText = fullAddr;
                         }
-                        
+
                         displayTitles.add(displayText);
                         fullAddresses.add(fullAddr.isEmpty() ? title : fullAddr);
                         coords.add(new double[]{lat, lng});
@@ -314,11 +316,11 @@ public class TimestampActivity extends AppCompatActivity {
 
     private void showSearchResultsDialog(List<String> displayTitles, List<String> fullAddresses, List<double[]> coords) {
         if (displayTitles.isEmpty()) {
-            Toast.makeText(this, "Tidak ada hasil lokasi ditemukan", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Tidak ada lokasi ditemukan", Toast.LENGTH_SHORT).show();
             return;
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Pilih Hasil Lokasi (" + displayTitles.size() + ")");
+        builder.setTitle("Pilih Lokasi (" + displayTitles.size() + ")");
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_2, android.R.id.text1, displayTitles);
         builder.setAdapter(adapter, (dialog, which) -> {
             double[] selected = coords.get(which);
@@ -357,7 +359,7 @@ public class TimestampActivity extends AppCompatActivity {
                     String line;
                     while ((line = reader.readLine()) != null) sb.append(line);
                     reader.close();
-                    
+
                     JSONObject json = new JSONObject(sb.toString());
                     if (json.getString("status").equals("success")) {
                         String base64Img = json.getString("image").split(",")[1];
@@ -376,21 +378,21 @@ public class TimestampActivity extends AppCompatActivity {
                 String dateStr = etDate.getText().toString();
                 String timeStr = etTime.getText().toString();
                 String addrStr = etAddress.getText().toString();
-                
+
                 String dateFormatted = "";
                 if (!dateStr.isEmpty()) {
                     SimpleDateFormat in = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                     SimpleDateFormat out = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
                     try { dateFormatted = out.format(in.parse(dateStr)); } catch (Exception ignored) {}
                 }
-                
+
                 String timeFormatted = timeStr.replace(":", ".");
-                
+
                 List<String> lines = new ArrayList<>();
                 lines.add("Network: " + dateFormatted + " " + timeFormatted + " WIB");
                 lines.add("Local: " + dateFormatted + " " + timeFormatted + " WIB");
                 lines.add(toDMS(lat, true) + " " + toDMS(lng, false));
-                
+
                 if (!addrStr.isEmpty()) {
                     String[] parts = addrStr.split(",");
                     for (String p : parts) {
@@ -428,15 +430,15 @@ public class TimestampActivity extends AppCompatActivity {
                     stampedBitmap = result;
                     ivPreview.setImageBitmap(result);
                     btnSaveImage.setVisibility(View.VISIBLE);
-                    btnApplyStamp.setText("Terapkan Stamp ke Gambar");
+                    btnApplyStamp.setText("Terapkan Watermark ke Gambar");
                     btnApplyStamp.setEnabled(true);
-                    Toast.makeText(this, "Stamp berhasil diterapkan!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Watermark berhasil diterapkan!", Toast.LENGTH_SHORT).show();
                 });
 
             } catch (Exception e) {
                 e.printStackTrace();
                 mainHandler.post(() -> {
-                    btnApplyStamp.setText("Terapkan Stamp ke Gambar");
+                    btnApplyStamp.setText("Terapkan Watermark ke Gambar");
                     btnApplyStamp.setEnabled(true);
                     Toast.makeText(this, "Terjadi kesalahan saat memproses gambar", Toast.LENGTH_SHORT).show();
                 });
@@ -451,11 +453,11 @@ public class TimestampActivity extends AppCompatActivity {
         float minutesNotTruncated = (absolute - degrees) * 60;
         int minutes = (int) Math.floor(minutesNotTruncated);
         float seconds = (minutesNotTruncated - minutes) * 60;
-        
+
         String direction;
         if (isLat) direction = coordinate >= 0 ? "N" : "S";
         else direction = coordinate >= 0 ? "E" : "W";
-        
+
         String sign = coordinate < 0 ? "-" : "";
         return sign + degrees + "°" + minutes + "'" + String.format(Locale.US, "%.3f", seconds).replace(".", ",") + "\"" + direction;
     }
@@ -474,7 +476,7 @@ public class TimestampActivity extends AppCompatActivity {
                 if (outputStream != null) {
                     outputStream.close();
                 }
-                Toast.makeText(this, "Gambar disimpan ke Galeri", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Gambar berhasil disimpan ke Galeri", Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
                 e.printStackTrace();
                 Toast.makeText(this, "Gagal menyimpan gambar", Toast.LENGTH_SHORT).show();

@@ -1,5 +1,6 @@
 package com.example.cekuseragent;
 
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.Intent;
@@ -8,8 +9,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Process;
 import android.provider.Settings;
+import android.view.accessibility.AccessibilityManager;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class AppLockManager {
@@ -20,6 +23,7 @@ public class AppLockManager {
 
     private final SharedPreferences prefs;
     private final Context context;
+
     private static String lastUnlockedPackage = "";
     private static long lastUnlockedTime = 0;
 
@@ -67,6 +71,10 @@ public class AppLockManager {
         return new HashSet<>(prefs.getStringSet(KEY_LOCKED_PACKAGES, new HashSet<>()));
     }
 
+    public int getLockedCount() {
+        return getLockedPackages().size();
+    }
+
     public boolean isPackageLocked(String packageName) {
         return getLockedPackages().contains(packageName);
     }
@@ -77,6 +85,9 @@ public class AppLockManager {
             current.add(packageName);
         } else {
             current.remove(packageName);
+            if (packageName.equals(lastUnlockedPackage)) {
+                clearTemporaryUnlock();
+            }
         }
         prefs.edit().putStringSet(KEY_LOCKED_PACKAGES, current).apply();
     }
@@ -98,10 +109,37 @@ public class AppLockManager {
         lastUnlockedTime = System.currentTimeMillis();
     }
 
+    public static String getLastUnlockedPackage() {
+        return lastUnlockedPackage;
+    }
+
+    public static void clearTemporaryUnlock() {
+        lastUnlockedPackage = "";
+        lastUnlockedTime = 0;
+    }
+
+    public static void clearTemporaryUnlockIfNot(String pkg) {
+        if (!lastUnlockedPackage.equals(pkg)) {
+            clearTemporaryUnlock();
+        }
+    }
+
     public static boolean isTemporarilyUnlocked(String packageName) {
-        // Unlock lasts for 5 minutes or while app is in foreground
         if (packageName.equals(lastUnlockedPackage)) {
-            return (System.currentTimeMillis() - lastUnlockedTime) < 300000;
+            // Unlocked as long as session is within 10 minutes and user hasn't switched away
+            return (System.currentTimeMillis() - lastUnlockedTime) < 600000;
+        }
+        return false;
+    }
+
+    public boolean isAccessibilityEnabled() {
+        AccessibilityManager am = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
+        if (am == null) return false;
+        List<AccessibilityServiceInfo> runningServices = am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_GENERIC);
+        for (AccessibilityServiceInfo service : runningServices) {
+            if (service.getId() != null && service.getId().contains(context.getPackageName())) {
+                return true;
+            }
         }
         return false;
     }
@@ -121,6 +159,10 @@ public class AppLockManager {
     public boolean hasOverlayPermission() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return true;
         return Settings.canDrawOverlays(context);
+    }
+
+    public static Intent getAccessibilityIntent() {
+        return new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
     }
 
     public static Intent getUsageStatsIntent() {

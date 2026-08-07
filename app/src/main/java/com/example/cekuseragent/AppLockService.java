@@ -41,7 +41,7 @@ public class AppLockService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel serviceChannel = new NotificationChannel(
                     CHANNEL_ID,
-                    "Layanan Kunci Aplikasi",
+                    "Layanan Kunci Aplikasi Pro",
                     NotificationManager.IMPORTANCE_LOW
             );
             serviceChannel.setDescription("Menjaga keamanan aplikasi yang terkunci");
@@ -60,8 +60,8 @@ public class AppLockService extends Service {
         );
 
         return new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Kunci Aplikasi Aktif")
-                .setContentText("Aplikasi yang dipilih terlindungi dengan PIN")
+                .setContentTitle("Kunci Aplikasi Aktif 🛡️")
+                .setContentText("Melindungi aplikasi terpilih secara aman")
                 .setSmallIcon(android.R.drawable.ic_lock_lock)
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
@@ -73,7 +73,7 @@ public class AppLockService extends Service {
             @Override
             public void run() {
                 checkForegroundApp();
-                handler.postDelayed(this, 500); // Check every 500ms
+                handler.postDelayed(this, 300); // Check every 300ms
             }
         };
         handler.post(runnable);
@@ -86,20 +86,31 @@ public class AppLockService extends Service {
         }
 
         String currentPackage = getForegroundPackageName();
-        if (currentPackage == null || currentPackage.isEmpty() || currentPackage.equals(getPackageName())) {
+        if (currentPackage == null || currentPackage.isEmpty() ||
+                currentPackage.equals(getPackageName()) ||
+                currentPackage.equals("com.android.systemui") ||
+                currentPackage.contains("launcher")) {
             return;
+        }
+
+        if (!currentPackage.equals(lastForegroundPackage)) {
+            if (!currentPackage.equals(AppLockManager.getLastUnlockedPackage())) {
+                AppLockManager.clearTemporaryUnlockIfNot(currentPackage);
+            }
+            lastForegroundPackage = currentPackage;
         }
 
         if (lockManager.isPackageLocked(currentPackage)) {
             if (!AppLockManager.isTemporarilyUnlocked(currentPackage)) {
-                // Launch lock screen
                 Intent lockIntent = new Intent(this, AppLockScreenActivity.class);
                 lockIntent.putExtra("locked_package", currentPackage);
-                lockIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                lockIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP |
+                        Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(lockIntent);
             }
         }
-        lastForegroundPackage = currentPackage;
     }
 
     private String getForegroundPackageName() {
