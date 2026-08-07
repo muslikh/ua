@@ -1,24 +1,34 @@
 package com.example.cekuseragent;
 
 import android.app.Activity;
-import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
 import android.util.Log;
+import android.widget.Toast;
+
 import androidx.core.content.FileProvider;
+
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.ExecutorService;
@@ -26,25 +36,27 @@ import java.util.concurrent.Executors;
 
 public class UpdateHelper {
 
+    private static final String TAG = "UpdateHelper";
     private static final String GITHUB_REPO = "muslikh/ua";
     private static final String API_URL = "https://api.github.com/repos/" + GITHUB_REPO + "/releases/latest";
     private final Activity activity;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public UpdateHelper(Activity activity) {
         this.activity = activity;
     }
 
     public void checkForUpdate() {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        Handler handler = new Handler(Looper.getMainLooper());
-
         executor.execute(() -> {
             try {
                 URL url = new URL(API_URL);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Accept", "application/vnd.github.v3+json");
-                
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
+
                 if (conn.getResponseCode() == 200) {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                     StringBuilder response = new StringBuilder();
@@ -58,7 +70,7 @@ public class UpdateHelper {
                     String tagName = jsonObject.getString("tag_name");
                     String latestVersion = tagName.replace("v", "");
                     String currentVersion = BuildConfig.VERSION_NAME.replace("v", "");
-                    
+
                     JSONArray assets = jsonObject.optJSONArray("assets");
                     String downloadUrl = null;
                     if (assets != null && assets.length() > 0) {
@@ -70,19 +82,15 @@ public class UpdateHelper {
                             }
                         }
                     }
-                    
-                    // Fallback jika tidak ada aset .apk tapi ada url zip/tarball, tapi kita hanya mau apk.
-                    if (downloadUrl == null && jsonObject.has("html_url")) {
-                         // Biarkan null jika tidak ada apk
-                    }
 
                     if (isNewerVersion(currentVersion, latestVersion) && downloadUrl != null) {
                         final String finalDownloadUrl = downloadUrl;
-                        handler.post(() -> showUpdateDialog(latestVersion, finalDownloadUrl));
+                        final String releaseNotes = jsonObject.optString("body", "");
+                        mainHandler.post(() -> showUpdateDialog(latestVersion, finalDownloadUrl, releaseNotes));
                     }
                 }
             } catch (Exception e) {
-                Log.e("UpdateHelper", "Error checking update", e);
+                Log.e(TAG, "Error checking update", e);
             }
         });
     }
@@ -104,64 +112,176 @@ public class UpdateHelper {
         return false;
     }
 
-    private void showUpdateDialog(String newVersion, String downloadUrl) {
+    private void showUpdateDialog(String newVersion, String downloadUrl, String releaseNotes) {
+        String msg = "Versi baru (" + newVersion + ") telah tersedia.\n\nApakah Anda ingin mengunduh dan memperbarui aplikasi sekarang?";
+        if (!releaseNotes.isEmpty()) {
+            msg += "\n\nCatatan Rilis:\n" + (releaseNotes.length() > 200 ? releaseNotes.substring(0, 200) + "..." : releaseNotes);
+        }
+
         new MaterialAlertDialogBuilder(activity)
-                .setTitle("Update Tersedia")
-                .setMessage("Versi baru (" + newVersion + ") telah rilis. Apakah Anda ingin mengunduh dan memperbarui aplikasi sekarang?")
-                .setPositiveButton("Update", (dialog, which) -> downloadAndInstall(downloadUrl))
+                .setTitle("Pembaruan Tersedia (v" + newVersion + ")")
+                .setMessage(msg)
+                .setPositiveButton("Update Sekarang", (dialog, which) -> checkPermissionAndDownload(downloadUrl))
+                .setNeutralButton("Unduh via Browser", (dialog, which) -> openInBrowser(downloadUrl))
                 .setNegativeButton("Nanti", null)
-                .setCancelable(false)
                 .show();
     }
 
-    private void downloadAndInstall(String url) {
-        String destination = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/CekUserAgent-Update.apk";
-        File file = new File(destination);
-        if (file.exists()) {
-            file.delete();
+    private void openInBrowser(String url) {
+        try {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            activity.startActivity(browserIntent);
+        } catch (Exception e) {
+            Toast.makeText(activity, "Gagal membuka browser: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+    }
 
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-        request.setTitle("Mengunduh Update Cek User Agent");
-        request.setDescription("Sedang mengunduh file APK...");
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        request.setDestinationUri(Uri.fromFile(file));
-
-        DownloadManager manager = (DownloadManager) activity.getSystemService(Context.DOWNLOAD_SERVICE);
-        if (manager == null) return;
-        
-        final long downloadId = manager.enqueue(request);
-
-        BroadcastReceiver onComplete = new BroadcastReceiver() {
-            public void onReceive(Context ctxt, Intent intent) {
-                long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-                if (id == downloadId) {
-                    installApk(file);
-                    activity.unregisterReceiver(this);
-                }
+    private void checkPermissionAndDownload(String downloadUrl) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!activity.getPackageManager().canRequestPackageInstalls()) {
+                new MaterialAlertDialogBuilder(activity)
+                        .setTitle("Izin Instalasi Diperlukan")
+                        .setMessage("Untuk memperbarui aplikasi, izinkan instalasi dari sumber tidak dikenal untuk MyTools.")
+                        .setPositiveButton("Buka Pengaturan", (d, w) -> {
+                            Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES_SETTINGS,
+                                    Uri.parse("package:" + activity.getPackageName()));
+                            activity.startActivity(intent);
+                        })
+                        .setNegativeButton("Batal", null)
+                        .show();
+                return;
             }
-        };
+        }
+        startDirectDownload(downloadUrl);
+    }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            activity.registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_EXPORTED);
-        } else {
-            activity.registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+    private void startDirectDownload(String downloadUrl) {
+        ProgressDialog progressDialog = new ProgressDialog(activity);
+        progressDialog.setTitle("Mengunduh Pembaruan");
+        progressDialog.setMessage("Sedang mengunduh file APK...");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setMax(100);
+        progressDialog.setIndeterminate(false);
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        executor.execute(() -> {
+            File apkFile = null;
+            try {
+                // Gunakan direktori cache eksternal yang aman dan selalu bisa diakses FileProvider
+                File downloadDir = activity.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+                if (downloadDir == null) downloadDir = activity.getCacheDir();
+                apkFile = new File(downloadDir, "MyTools-Update.apk");
+
+                if (apkFile.exists()) {
+                    apkFile.delete();
+                }
+
+                // Download dengan redirect otomatis (GitHub -> S3 / CDN)
+                URL url = new URL(downloadUrl);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setInstanceFollowRedirects(true);
+                HttpURLConnection.setFollowRedirects(true);
+                conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Android)");
+                conn.connect();
+
+                // Tangani manual redirect jika diperlukan (HTTP 301 / 302 / 307 / 308)
+                int status = conn.getResponseCode();
+                if (status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM || status == 307 || status == 308) {
+                    String newUrl = conn.getHeaderField("Location");
+                    conn.disconnect();
+                    url = new URL(newUrl);
+                    conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Android)");
+                    conn.connect();
+                }
+
+                int fileLength = conn.getContentLength();
+                InputStream input = new BufferedInputStream(conn.getInputStream());
+                OutputStream output = new FileOutputStream(apkFile);
+
+                byte[] data = new byte[8192];
+                long total = 0;
+                int count;
+                while ((count = input.read(data)) != -1) {
+                    total += count;
+                    if (fileLength > 0) {
+                        int progress = (int) (total * 100 / fileLength);
+                        mainHandler.post(() -> progressDialog.setProgress(progress));
+                    }
+                    output.write(data, 0, count);
+                }
+
+                output.flush();
+                output.close();
+                input.close();
+                conn.disconnect();
+
+                final File finalApkFile = apkFile;
+                mainHandler.post(() -> {
+                    progressDialog.dismiss();
+                    validateAndInstallApk(finalApkFile, downloadUrl);
+                });
+
+            } catch (Exception e) {
+                Log.e(TAG, "Download error", e);
+                if (apkFile != null && apkFile.exists()) {
+                    apkFile.delete();
+                }
+                mainHandler.post(() -> {
+                    progressDialog.dismiss();
+                    new MaterialAlertDialogBuilder(activity)
+                            .setTitle("Unduhan Gagal")
+                            .setMessage("Gagal mengunduh file update secara otomatis (" + e.getMessage() + "). Buka halaman unduhan di browser?")
+                            .setPositiveButton("Buka Browser", (d, w) -> openInBrowser(downloadUrl))
+                            .setNegativeButton("Tutup", null)
+                            .show();
+                });
+            }
+        });
+    }
+
+    private void validateAndInstallApk(File apkFile, String downloadUrl) {
+        if (!apkFile.exists() || apkFile.length() < 100000) { // Minimal 100KB untuk file APK valid
+            showCorruptApkDialog(downloadUrl, "Ukuran file APK tidak lengkap (" + apkFile.length() + " bytes).");
+            return;
+        }
+
+        // Validasi keutuhan APK menggunakan PackageManager bawaan Android
+        PackageManager pm = activity.getPackageManager();
+        PackageInfo info = pm.getPackageArchiveInfo(apkFile.getAbsolutePath(), 0);
+        if (info == null) {
+            showCorruptApkDialog(downloadUrl, "Struktur paket APK rusak atau tidak didukung oleh perangkat ini.");
+            return;
+        }
+
+        // APK valid! Luncurkan PackageInstaller
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            Uri apkUri;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                apkUri = FileProvider.getUriForFile(activity, activity.getPackageName() + ".fileprovider", apkFile);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            } else {
+                apkUri = Uri.fromFile(apkFile);
+            }
+
+            intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            activity.startActivity(intent);
+        } catch (Exception e) {
+            Log.e(TAG, "Install launch error", e);
+            Toast.makeText(activity, "Gagal membuka installer: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            openInBrowser(downloadUrl);
         }
     }
 
-    private void installApk(File file) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(getUriFromFile(file), "application/vnd.android.package-archive");
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        activity.startActivity(intent);
-    }
-
-    private Uri getUriFromFile(File file) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".fileprovider", file);
-        } else {
-            return Uri.fromFile(file);
-        }
+    private void showCorruptApkDialog(String downloadUrl, String reason) {
+        new MaterialAlertDialogBuilder(activity)
+                .setTitle("Gagal Membuka Paket")
+                .setMessage(reason + "\n\nSilakan unduh file APK terbaru langsung melalui browser.")
+                .setPositiveButton("Unduh di Browser", (d, w) -> openInBrowser(downloadUrl))
+                .setNegativeButton("Batal", null)
+                .show();
     }
 }
