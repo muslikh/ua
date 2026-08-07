@@ -86,16 +86,13 @@ public class AppLockService extends Service {
         }
 
         String currentPackage = getForegroundPackageName();
-        if (currentPackage == null || currentPackage.isEmpty() ||
-                currentPackage.equals(getPackageName()) ||
-                currentPackage.equals("com.android.systemui") ||
-                currentPackage.contains("launcher")) {
+        if (currentPackage == null || currentPackage.isEmpty() || currentPackage.equals(getPackageName())) {
             return;
         }
 
         if (!currentPackage.equals(lastForegroundPackage)) {
             if (!currentPackage.equals(AppLockManager.getLastUnlockedPackage())) {
-                AppLockManager.clearTemporaryUnlockIfNot(currentPackage);
+                AppLockManager.clearTemporaryUnlock();
             }
             lastForegroundPackage = currentPackage;
         }

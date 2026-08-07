@@ -5,7 +5,9 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
@@ -104,7 +106,7 @@ public class AppLockActivity extends AppCompatActivity {
         btnChangePin.setOnClickListener(v -> showChangePinDialog());
 
         btnPermOverlay.setOnClickListener(v -> startActivity(AppLockManager.getOverlayIntent(this)));
-        btnPermAccessibility.setOnClickListener(v -> startActivity(AppLockManager.getAccessibilityIntent()));
+        btnPermAccessibility.setOnClickListener(v -> showAccessibilityGuideDialog());
         btnPermUsage.setOnClickListener(v -> startActivity(AppLockManager.getUsageStatsIntent()));
 
         etSearchApp.addTextChangedListener(new TextWatcher() {
@@ -216,6 +218,35 @@ public class AppLockActivity extends AppCompatActivity {
             }
         });
         builder.setNegativeButton("Batal", null);
+        builder.show();
+    }
+
+    private void showAccessibilityGuideDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Izin Layanan Aksesibilitas ♿");
+        builder.setMessage("Layanan Aksesibilitas diperlukan agar kunci aplikasi merespon secara instan (0ms delay).\n\n" +
+                "⚠️ Jika di HP Anda tombol Aksesibilitas abu-abu / bertuliskan 'Pengaturan Dibatasi' (Android 13/14):\n" +
+                "1. Ketuk 'Buka Info Aplikasi' di bawah\n" +
+                "2. Ketuk titik tiga (⋮) di pojok kanan atas\n" +
+                "3. Pilih 'Izinkan setelan terbatas'\n" +
+                "4. Masukkan PIN layar HP Anda\n" +
+                "5. Lalu kembali dan aktifkan 'MyTools Lock' di Aksesibilitas.");
+
+        builder.setPositiveButton("Buka Aksesibilitas", (dialog, which) -> {
+            startActivity(AppLockManager.getAccessibilityIntent());
+        });
+
+        builder.setNeutralButton("Buka Info Aplikasi", (dialog, which) -> {
+            try {
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                intent.setData(Uri.parse("package:" + getPackageName()));
+                startActivity(intent);
+            } catch (Exception e) {
+                Toast.makeText(this, "Gagal membuka info aplikasi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNegativeButton("Tutup", null);
         builder.show();
     }
 

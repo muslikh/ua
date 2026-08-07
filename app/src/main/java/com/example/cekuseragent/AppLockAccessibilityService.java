@@ -2,17 +2,41 @@ package com.example.cekuseragent;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.view.accessibility.AccessibilityEvent;
 
 public class AppLockAccessibilityService extends AccessibilityService {
     private AppLockManager lockManager;
     private String currentActivePackage = "";
 
+    private final BroadcastReceiver screenOffReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
+                // Kunci ulang seluruh aplikasi saat layar HP mati
+                AppLockManager.clearTemporaryUnlock();
+                currentActivePackage = "";
+            }
+        }
+    };
+
     @Override
     public void onCreate() {
         super.onCreate();
         lockManager = new AppLockManager(this);
+        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
+        registerReceiver(screenOffReceiver, filter);
+    }
+
+    @Override
+    public void onDestroy() {
+        try {
+            unregisterReceiver(screenOffReceiver);
+        } catch (Exception ignored) {}
+        super.onDestroy();
     }
 
     @Override
@@ -36,26 +60,24 @@ public class AppLockAccessibilityService extends AccessibilityService {
         if (pkgChar == null) return;
         String packageName = pkgChar.toString();
 
-        // Ignore our own app, system UI / launcher keyboards / lockscreen
-        if (packageName.equals(getPackageName()) ||
-            packageName.equals("android") ||
-            packageName.equals("com.android.systemui") ||
-            packageName.contains("launcher") ||
-            packageName.contains("inputmethod")) {
+        // Abaikan jika event berasal dari aplikasi kita sendiri
+        if (packageName.equals(getPackageName())) {
             return;
         }
 
+        // Jika berpindah jendela/aplikasi (termasuk kembali ke Home/Launcher)
         if (!packageName.equals(currentActivePackage)) {
-            // Switched to a new app -> if user left the unlocked app, reset temporary unlock for other packages
+            // Jika user keluar dari aplikasi yang baru saja di-unlock, langsung reset status buka kunci
             if (!packageName.equals(AppLockManager.getLastUnlockedPackage())) {
-                AppLockManager.clearTemporaryUnlockIfNot(packageName);
+                AppLockManager.clearTemporaryUnlock();
             }
             currentActivePackage = packageName;
         }
 
+        // Jika aplikasi yang dibuka masuk dalam daftar kunci
         if (lockManager.isLockEnabled() && lockManager.isPackageLocked(packageName)) {
             if (!AppLockManager.isTemporarilyUnlocked(packageName)) {
-                // Launch lock screen instantly
+                // Tampilkan layar PIN seketika (0ms delay)
                 Intent lockIntent = new Intent(this, AppLockScreenActivity.class);
                 lockIntent.putExtra("locked_package", packageName);
                 lockIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
